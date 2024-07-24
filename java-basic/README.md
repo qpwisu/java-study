@@ -591,3 +591,580 @@ import static static2.DecoData.*; // 클래스내 static 메서드전부
 ### main() 메서드는 정적 메서드
 
 - 같은 클래스에서 호출하는 메서드도 정적 메서드로 선언해서 사용
+
+## 세션[8]  final (20240724)
+
+finer은 클래스, method 여러 곳에서 사용가능
+
+### final 지역 변수
+
+ 값을 변경 불가능, 최초 한번만 할당 가능 
+
+### final 매개 변수
+
+객체의 매개변수일 경우 생성자로 한번 초기화 가능(미리 초기화 되어 있다면 불가능)
+
+인스턴스마다 각자의 final 변수 값을 가짐(값을 공유하지 않음) 
+
+상수(static final ) : 클래스의 단 하나뿐인 변하지 않는 변수를 설정 (모두 대문자와 _만 사용 규칙)
+
+어플리케이션 전반에서 많이 사용하고 변경이 불가하기에 보통 **public**으로 많이 사용
+
+```java
+package final1;
+//final 필드 - 생성자 초기화
+public class ConstructInit {
+	final int value;
+	//final int value = 10; 이러면 값을 바꿀수 없음 
+
+	public static final int VAL = 10; // 상수 
+	
+	public ConstructInit(int value) {
+	this.value = value;
+	}
+}
+```
+
+### final 참조형 변수
+
+참조형 변수의 final을 붙히면 참조값을 변경 못함
+
+참조값내의 값은 변경할 수 있다 
+
+```java
+final Data data = new Data();
+
+// Data data = new Data(); 참조값을 변경 못함
+data.name = 'han'
+data.name = 'jang // 참조값 내의 값은 변경가능
+```
+
+### final 클래스
+
+final 클래스는 상속 받을 수 없다
+
+## 세션[8]  상속 (20240724)
+
+### 상속 관계
+
+부모 클래스의 속성과 기능을 그대로 물려 받는 것 extends를 사용 
+
+**한개의 클래스**만 상속 가능 
+
+```java
+
+public class Parent {
+
+    public String value = "parent";
+
+    public void hello() {
+        System.out.println("Parent.hello");
+    }
+}
+
+public class Child extends Parent {
+
+    public String value = "child";
+
+    @Override
+    public void hello() {
+        System.out.println("Child.hello");
+    }
+
+    public void call() {
+        System.out.println("this value = " + this.value); //this 생략 가능
+        System.out.println("super value = " + super.value);
+
+        this.hello(); //this 생략 가능
+        super.hello();
+    }
+}
+```
+
+### 상속과 메모리 구조
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/720abf95-7e09-46c8-8ccd-ff391e9ecc90/9eb3580a-25e3-4684-94a5-5071bd9cf8c4/Untitled.png)
+
+- 상속 관계의 객체를 생성하면 그 내부에는 부모와 자식이 모두 생성된다.
+- 상속 관계의 객체를 호출할 때, 대상 타입을 정해야 한다. 이때 호출자의 타입을 통해 대상 타입을 찾는다.
+- 현재 타입에서 기능을 찾지 못하면 상위 부모 타입으로 기능을 찾아서 실행한다. 기능을 찾지 못하면 컴파일 오류가 발생한다.
+
+### 메서드 오버라이딩
+
+부모 타입의 기능을 자식에서는 다르게 재정의하는 것  (@Override)
+
+오버라이딩된 메서드를 자식 클래스에서 찾으면 부모 클래스의 메서드를 찾지 않는다 
+
+### 메서드 오버라이딩 조건
+
+- 이름, 매개변수(타입,순서,개수)가 같아야함
+- 반환타입이 같아야함(하위 클래스 타입은 가능)
+- 상위 클래스의 접근 제어자보다 제한적이면 안된다
+    
+    상위 클래스가 default이면 public, protected는 가능하지만 private는 안된다 
+    
+- 예외: 오버라이딩 메서드는 상위 클래스의 메서드보다 더 많은 체크 예외를 throws 로 선언할 수 없다. 하지만
+더 적거나 같은 수의 예외, 또는 하위 타입의 예외는 선언할 수 있다.
+- static , final , private : 키워드가 붙은 메서드는 오버라이딩 될 수 없다
+    - static은 클래스 로딩 시점에 메모리에 할당되기 떄문
+    - final은 수정 불가
+    - private는 클래스내에서만 사용 가능
+- 생성자는 오버라이딩 할 수 없다
+
+### super - 부모참조
+
+부모와 자식의 필드, 메서드 명이 같을때 부모꺼를 참조할 수 있다. 
+
+```java
+public void call() {
+    System.out.println("this value = " + this.value); //this 생략 가능
+    System.out.println("super value = " + super.value);
+
+    this.hello(); //this 생략 가능
+    super.hello();
+}
+```
+
+### super - 생성자
+
+1. **상속 관계를 사용하면 자식 클래스의 생성자에서 부모 클래스의 생성자를 반드시 호출해야 한다.(규칙)**
+    - 상속 관계의 인스턴스를 생성하면 결국 **메모리 내부에는 자식과 부모 클래스가 각각 다 만들어진다**.  Child 를 만들면 부모인 Parent 까지 함께 만들어지는 것이다. 따라서 각각의 생성자도 모두 호출되어야 한다.
+2. 생성자는 오버라이딩 할 수 없다.
+3. 상속 관계에서 자식 클래스의 생성자 첫줄에 반드시 super(...) 를 호출해야 한다. 단 기본 생성자
+super() 인 경우 생략할 수 있다.
+4. 코드의 첫줄에 this(...) 를 사용하더라도 반드시 한번은 super(...) 를 호출해야 한다.
+    
+    아래 코드에서 두개의 생성자에서 super()가 들어간 이 생성자는 무조건 적으로 실행되어야한다
+    
+5. 상속 관계의 생성자 호출은 결과적으로 부모에서 자식 순서로 실행된다. 따라서 부모의 데이터를 먼저 초기화하고 그 다음에 자식의 데이터를 초기화한다
+    
+    각 클래스에 맨 위에는 super()가 있어야하기 때문에 
+    
+    ```java
+    public class ClassA {
+        public ClassA() {
+            System.out.println("ClassA 생성자");
+        }
+    }
+    
+    public class ClassB extends ClassA {
+    
+        public ClassB(int a) {
+            this(a, 0); //기본 생성자 생략 가능
+            System.out.println("ClassB 생성자 a=" + a);
+        }
+    
+        public ClassB(int a, int b) { // 이 생성자는 무조건 적으로 실행되어야한 
+            super(); //기본 생성자 생략 가능
+            System.out.println("ClassB 생성자 a=" + a + " b=" + b);
+        }
+    }
+    
+    public static void main(String[] args) {
+        //ClassC classC = new ClassC();
+        ClassB classB = new ClassB(100);
+    }
+        
+    // 결과 부모의 생성자 부터 실행 되기 때문
+    ClassA 생성자
+    ClassB 생성자 a=100 b=0
+    ClassB 생성자 a=100
+    ```
+    
+
+### 클래스와 메서드에 사용되는 final
+
+final 클래스는 상속 받을 수 없다
+
+final 메서드는 오버라이딩을 할 수 없다 
+
+## 세션[10]  다형성 (20240724) - 꼭 다시 읽어보자
+
+다형성 : 하나의 객체가 여러 타입으로 사용될 수 있다는 뜻
+
+### 다형적 참조 : 부모 변수가 자식 인스턴스 참조
+
+- **부모 변수가 자식 인스턴스 참조할 수있다, 자식은 부모를 담을 수 없다.**
+- **부모 변수가 자식 인스턴스 참조시 자식의 기능은 호출할 수 없다**
+- 다형적 참조는 업캐스팅의 일종이다
+
+```java
+//부모 변수가 자식 인스턴스 참조(다형적 참조)
+System.out.println("Parent -> Child");
+Parent poly = new Child();
+poly.parentMethod();
+//자식의 기능은 호출할 수 없다. 컴파일 오류 발생
+//poly.childMethod();
+
+//Child child1 = new Parent(); //자식은 부모를 담을 수 없다.
+
+Parent poly2 = new Grandson(); // 부모는 손자도 담을 수 있다 하위 클래스는 다 담을 수 있ㅇ므 
+
+```
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/720abf95-7e09-46c8-8ccd-ff391e9ecc90/0ef3292a-3aa4-4cdd-8f57-7667e03d67c3/Untitled.png)
+
+1. 부모 타입 변수가 자식 인스터스를 참조(Parent poly = new Child())
+2. Child 인스턴스를 만들었다(new Child()). 이 경우 자식 타입인 Child 를 생성했기 때문에 메모리 상에 Child 와 Parent 가 모두 생성된다
+3. 생성된 참조값을 Parent 타입의 변수인 poly 에 담아둔다.
+
+**부모 변수가 자식 인스턴스 참조시 자식의 기능은 호출할 수 없는 이유** 
+
+1. 호출자인 poly 는 Parent 타입이다. 따라서 **Parent 클래스부터 시작해서 필요한 기능을 찾는다**
+2. 상속 관계는 부모 방향으로 찾아 올라갈 수는 있지만 자식 방향으로 찾아 내려갈 수는 없다. Parent 는
+부모 타입이고 상위에 부모가 없다. 따라서 childMethod() 를 찾을 수 없으므로 컴파일 오류가 발생
+- 자식의 기능을 사용하기 위해선 **캐스팅**이 필요하다
+
+### 다형성과 캐스팅(부모↔자식)
+
+**캐스팅을 한다고 해서 Parent poly 의 타입이 변하는 것은 아니다**. 해당 참조값을 꺼내고 꺼낸 참조값이
+Child 타입이 되는 것이다. 따라서 poly 의 타입은 Parent 로 기존과 같이 유지된다
+
+**다운 캐스팅 : (부모** **타입을 자식 타입으로 변경) (부모, 자식 기능 둘다 사용 가능)**
+
+- 다운 캐스팅을 하면 자식의 메서드를 사용할 수있다(이전처럼 부모 기능도 사용가능)
+
+```java
+//부모 변수가 자식 인스턴스 참조(다형적 참조)
+Parent poly = new Child(); //x001
+//단 자식의 기능은 호출할 수 없다. 컴파일 오류 발생
+//poly.childMethod();
+
+//다운캐스팅(부모 타입 -> 자식 타입)
+Child child = poly; // 이건 불가능 
+Child child = (Child) poly;  // 기본적으로 poly는 바뀌지 않음  
+child.childMethod();
+child.parentMethod();
+
+```
+
+1. 다운캐스팅을 통해 부모타입을 자식 타입으로 변환한 다음에 대입 시도
+2. 참조값을 읽은 다음 자식 타입으로 지정
+
+**일시적 다운 캐스팅** 
+
+```java
+Parent poly = new Child(); // child의 메서드를 사용 못함 , 기본적으로 poly는 바뀌지 않음  
+((Child) poly).childMethod(); // 일시적 다운 캐스팅 
+```
+
+**다운캐스팅 주의점** 
+
+부모타입 변수에 부모타입 인스턴스 참조값을 저장했다 → 여기에는 child에 대한 객체가 메모리에 없다 → 오류
+
+```java
+Parent parent1 = new Child();
+Child child1 = (Child) parent1;
+child1.childMethod(); //문제 없음
+
+Parent parent2 = new Parent();
+Child child2 = (Child) parent2; //런타임 오류 - ClassCastException
+child2.childMethod(); //실행 불가
+```
+
+### **업캐스팅**(upcasting): 자식 타입을 부모 타입으로 변경
+
+부모는 자식을 담을 수 있기때문에 생략 가능(권장)
+
+- 다운캐스팅은 생략 불가능
+
+자식 타입에 부모 인스턴스를 저장 못하는거랑 햇갈리지 말자 
+
+```java
+Child child = new Child();
+Parent parent1 = (Parent) child; //업캐스팅은 생략 가능, 생략 권장
+Parent parent2 = child; //업캐스팅 생략
+
+parent1.parentMethod();
+parent2.parentMethod();
+```
+
+**캐스팅 정리** 
+
+```java
+//부모 변수가 자식 인스턴스 참조(다형적 참조)
+Parent poly = new Child(); //x001
+poly.parentMethod();
+//poly.childMethod(); //단 자식의 기능은 호출할 수 없다. 컴파일 오류 발생
+
+// 자식 변수가 부모 인스턴스를 참조하는것은 불가
+// Child child1 = new Parent(); // 자식 타입에 부모를 담을 수없다 new Parent()에는 child에 대한 객체정보가 없다
+
+//다운캐스팅(부모 타입 -> 자식 타입)
+Child child = (Child) poly; //x001
+child.childMethod();
+child.parentMethod();
+
+// 다운캐스팅 실패(부모타입에 부모 인스턴스가 들어있는 경우)
+Child child2 = new Child();
+Parent parent2 = new Parent();
+child2 = (Child) parent2; // (다운 캐스팅 실패) parent가 위치한 메모리에 child에 대한 객체 정보가 없다 
+
+// 업캐스팅 (자식 타입 -> 부모타입)
+// Child child1 = new Parent(); // 자식 타입에 부모를 담을 수없다 new Parent()에는 child에 대한 객체정보가 없다
+Parent parent3 = new Parent();
+Child child3 = new Child();
+parent3 = (Parent) child3; // (업 캐스팅) 부모는 자식을 품을 수 있다
+```
+
+**Parent poly = new Child(); 해석** 
+
+1. new Child() -  Child 클래스로 인스턴스를 생성 (메모리상에 Parent, Child의 객체 정보 모두가 저장)
+2. Parent 타입의 변수 poly에 인스턴스의 참조값을 저장
+3. Parent 타입의 변수 poly의 메서드 사용시 메모리상에 Parent, Child의 객체 정보 중 Parent를 사용 
+
+**컴파일 오류 vs 런타임 오류**
+
+- 컴파일 오류는 변수명 오타, 잘못된 클래스 이름 사용등 자바 프로그램을 실행하기 전에 발생하는 오류이다. 이런 오류는 IDE에서 즉시 확인할 수 있기 때문에 안전하고 좋은 오류이다.
+- 반면에 런타임 오류는 이름 그대로 프로그램이 실행되고 있는 시점에 발생하는 오류이다. 런타임 오류는 매우 안좋은 오류이다. 왜냐하면 보통 고객이 해당 프로그램을 실행하는 도중에 발생하기 때문이다
+
+### instanceof
+
+어떤 인스턴스를 참조하고 있는지 확인해주는 키워드 
+
+- `parent instanceof Child`
+- `parent instanceof Child child` - 자바 16부터 사용가능 캐스팅 불필요
+
+```java
+private static void call(Parent parent) {
+    parent.parentMethod();
+    if (parent instanceof Child) {
+        System.out.println("Child 인스턴스 맞음");
+        Child child = (Child) parent; //캐스팅
+        child.childMethod();
+    }
+}
+or 
+private static void call(Parent parent) {
+    parent.parentMethod();
+    //Child 인스턴스인 경우 childMethod() 실행
+    if (parent instanceof Child child) {
+        System.out.println("Child 인스턴스 맞음");
+        child.childMethod();
+    }
+}
+```
+
+### 다형성과 메서드 오버라이딩
+
+오버라이딩 된 메서드가 항상 우선권을 가진다
+
+- 변수는 오버라이딩이 되지 않는다
+
+```java
+public class Child extends Parent {
+
+    public String value = "child";
+
+    @Override
+    public void method() {
+        System.out.println("Child.method");
+    }
+}
+
+public class Parent {
+
+    public String value = "parent";
+
+    public void method() {
+        System.out.println("Parent.method");
+    }
+}
+
+    public static void main(String[] args) {
+        //자식 변수가 자식 인스턴스 참조
+        Child child = new Child();
+        System.out.println("Child -> Child");
+        System.out.println("value = " + child.value);
+        child.method();
+
+        //부모 변수가 부모 인스턴스 참조
+        Parent parent = new Parent();
+        System.out.println("Parent -> Parent");
+        System.out.println("value = " + parent.value);
+        parent.method();
+
+        //부모 변수가 자식 인스턴스 참조(다형적 참조)
+        Parent poly = new Child();
+        System.out.println("Parent -> Child");
+        System.out.println("value = " + poly.value); //변수는 오버라이딩X
+        poly.method(); //메서드 오버라이딩!
+    }
+
+Child -> Child
+value = child
+Child.method
+Parent -> Parent
+value = parent
+Parent.method
+Parent -> Child
+value = parent
+Child.method
+```
+
+- **오버라이딩 된 메서드는 항상 우선권을 가진**다. 오버라이딩은 부모 타입에서 정의한 기능을 자식 타입에서 재정의하는것이다. 만약 자식에서도 오버라이딩 하고 손자에서도 같은 메서드를 오버라이딩을 하면 손자의 오버라이딩 메서드가 우선권을 가진다. 더 하위 자식의 오버라이딩 된 메서드가 우선권을 가지는 것
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/720abf95-7e09-46c8-8ccd-ff391e9ecc90/69d94137-017c-4d84-b7e3-3042727aca3e/Untitled.png)
+
+### 내가 이해한 내용
+
+다형적 참조란? 부모 타입의 변수에 자식 클래스 인스턴스를 참조(참조값을 저장)할 수 있다 
+
+이는 메모리에 자식 클래스 인스터스를 저장하면서 부모  클래스, 자식 클래스 모두를 저장하기 때문이다 
+
+이때는 자식 클래스의 메서드, 필드를 사용하지 못하고 부모 클래스의 메서드, 필드만 사용 할 수 있다.
+
+하지만 오버라이딩된 메서드가 호출될 때는 실제 객체인 자식 클래스의 메서드가 실행(오버라이딩 된 메서드는 항상 우선권을 가지기 때문)
+
+이때 다운 캐스팅을 통해 부모 타입을 자식 타입으로 변경할 수 있다. 이 또한 마찬가지로 자식 클래스 인스터스를 저장하면서 부모  클래스, 자식 클래스 모두를 저장하기 때문이다. 이때는 부모, 자식 모두의 메서드, 필드를 사용할 수 있다.
+
+하지만 다형적 참조 형태가 아닌 부모 타입 변수에 부모 인스턴스가 저장된 경우에는 자식 객체에 대한 정보가 없기 때문에 다운 캐스팅이 불가능하다 
+
+자식 타입 변수에 부모 인스턴스를 저장할 수는 없다. 부모인스턴스에는 자식 클래스에대한 정보가 없기 때문이다.
+
+하지만 자식 타입 변수에 자식 인스턴스가 저장된 경우 업 캐스팅을 통해 자식 타입을 부모 타입으로 변경할 수 있다. 하지만 자식 클래스의 메서드는 사용이 불가능하다. 
+
+또한 다형적 참조 역시 업캐스팅이다. 
+
+## 세션[11]  다형성 활용 (20240724) - 다시 읽자
+
+### 다형성 메서드 오버라이딩 쓰는 이유
+
+**예제** 
+
+- animal이라는 클래스를 상속하는 dog,cat,cow가 있다
+- 각 동물은 animal의 sound() 메서드를 오버라이딩함
+- dog, cat, caw를 상위 클래스인 Animal 타입의 배열에 넣을 수 있음(다형적 참조)
+    - 해당 배열을 for문 동작가능
+
+```java
+// 불필요한 반복 
+Dog dog = new Dog();
+Cat cat = new Cat();
+Caw caw = new Caw();
+dog.sound();
+cat.sound();
+caw.sound();
+
+// 
+ Dog dog = new Dog();
+ Cat cat = new Cat();
+ Caw caw = new Caw();
+ Animal[] animalArr = {dog, cat, caw}; (다형적참조)
+ //변하지 않는 부분
+ for (Animal animal : animalArr) {
+	 animal.sound();
+	} 
+```
+
+**생길 수 있는 문제** 
+
+1. 개념적 클래스 animal의 인스턴스를 생성하는 경우 - 제대로된 기능을 수행하지 않음
+2. animal을 상속받고 sound()를 오버라이딩 하지 않는 경우 - 부모클래스의 sound()가 실행됨
+
+### 추상클래스
+
+추상적인 개념 제공하는 클래스
+
+필드를 생성, 수정 가능  
+
+실제 생성(인스턴스)이 불가능 → 부모 클래스를 인스턴스로 만들것을 방지
+
+상속을 목적으로 사용되고, 부모 클래스로 사용된다 `extends` 사용
+
+`abstract class AbstractAnimal {...}`
+
+### 추상메서드
+
+추상 메서드는 이름 그대로 추상적인 개념을 제공하는 메서드
+
+부모 클래스를 상속 받는 자식 클래스가 반드시 오버라이딩 해야 하는 메서드를 부모 클래스에 정의
+
+실체가 존재하지 않고,메서드 바디가 없다.
+
+**추상 메서드가 하나라도 있으면 추상 클래스로 선언해야한다** 
+
+**추상 메서드는 상속 받는 자식 클래스가 반드시 오버라이딩 해서 사용해야 한다.→ 오버라이딩 강조** 
+
+`public abstract void sound();`
+
+### 순수 추상 클래스
+
+**모든 메서드가 추상 메서드인 추상 클래스- 모든 메서드에 abstract**
+
+### 인터페이스
+
+순수 추상 클래스를 더 쉽게 사용하게 해주는 기능
+
+모든 메서드를 추상메서드로 오버라이딩해서 구현해야함
+
+class가 아닌 interface
+
+**상속이 아닌 구현**이라함 , extends 대신 implements 
+
+**모든 메서드는 public, abstract를 포함하고 이를 생략 가능**
+
+**다중 구현을 지원한다** 
+
+**인터페이스에서 멤버 변수는 public , static , final 이 모두 포함되었다고 간주된다 → 필드 수정 불가**
+
+`public class Child implements InterfaceA, InterfaceB {`
+
+### 추상 클래스와 인터페이스의 차이
+
+- 제약
+    
+    추상 클래스에는 실행가능한 메서드를 추가할 수 있지만 인터페이스는 모든 메서드를 구현하게 끔 강제된다
+    
+- 다중 구현
+    
+    추상 클래스를 상속하는 경우는 하나만 상속 가능하지만 인터페이스는 한번에 여러개를 구현할 수 있다  
+    
+
+### 다중 상속을 지원하지 않고 다중 구현은 구현하는 이유
+
+여러 클래스를 상속 받으면 같은 이름의 메서드 중 어떤 부모의 메서드를 구현할지 결정해야 하는 다이아몬드 문제가 발생한다
+
+인터페이스 자신은 구현을 가지지 않는다. 대신에 인터페이스를 구현하는 곳에서 해당 기능을 모두 구현해야 한
+다. 여기서 InterfaceA , InterfaceB 는 같은 이름의 methodCommon() 를 제공하지만 이것의 기능은 Child
+가 구현한다. 그리고 오버라이딩에 의해 어차피 Child 에 있는 methodCommon() 이 호출된다. 결과적으로 두 부모 중에 어떤 한 부모의 methodCommon() 을 선택하는 것이 아니라 그냥 인터페이스들을 구현한 Child 에 있는 methodCommon() 이 사용된다
+
+**상속과 구현을 동시에 사용 가능하다** 
+
+`public class Bird extends AbstractAnimal implements Fly {` 
+
+## 세션[10]  객체지향프로그래밍 (20240724)
+
+객체들의 모임으로 프로그램을 파악하고자 함, 각각의 개체는 메세지를 주고 받고 데이터를 처리(협력)
+
+캡슐화, 다형성, 추상화, 상속성
+
+**역할(인터페이스)과 구현(구현 객체)으로 세상을 구분 ,** 프로그램은 유연하고 변경이 용이하게 만듬
+
+- 클라이언트는 대상의 역할(인터페이스)만 알면 된다
+- 클라이언트는 구현 대상의 내부 구조를 몰라도 된다
+- 클라이언트는 구현 대상의 내부 구조가 변경되어도 영향을 받지 않는다
+- 클라이언트는 구현 대상 자체를 변경해도 영향을 받지 않는다
+
+### 다형성의 본질
+
+- 클라이언트를 변경하지 않고, 서버의 구현 기능을 유연하게 변경할 수 있다
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/720abf95-7e09-46c8-8ccd-ff391e9ecc90/8ada1cdd-74c4-4a1d-ba54-41a7a03e2318/Untitled.png)
+
+- 여기서 driver는 car(역할)에만 의존한다 , 밑의 어떤 차종인지는 모른다
+    - driver는 car 멤버변수=인터페이스를 가진다, car 인터페이스만을 참조
+- car는 인터페이스로 k3car, model3car 클래스가 인터페이스를 구현
+
+### OCP 원칙
+
+확장에 열려있고 수정에는 닫혀있어야한다 
+
+- 위 예시에서 새로운 차를 추가해도 driver(클라이언트)의 코드는 전혀 변경되지 않는다(인터페이스때문)
+- main()에서 새로운차를 생성하고 전달하는 부분은 프로그램을 설정하고 조율하는 역할, 이런부분은 ocp를 지켜도 변경이 필요하다
+
+**전략 패턴** 
+
+- 디자인 패턴 중 가장 중요한 패턴
+- 클라이언트의 코드 변경없이 알고리즘을 쉽게 교체
+- 위 코드가 전략 패턴

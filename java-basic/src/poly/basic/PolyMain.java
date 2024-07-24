@@ -19,10 +19,13 @@ public class PolyMain {
         Parent poly = new Child();
         poly.parentMethod();
 
-        //Child child1 = new Parent(); //자식은 부모를 담을 수 없다.
-
         //자식의 기능은 호출할 수 없다. 컴파일 오류 발생
         //poly.childMethod();
+
+        //Child child1 = new Parent(); //자식은 부모를 담을 수 없다.
+
+        Parent poly2 = new Grandson(); // 부모는 손자도 담을 수 있다 하위 클래스는 다 담을 수 있ㅇ므
+
 
     }
 }
